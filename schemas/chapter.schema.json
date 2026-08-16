@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://makinuki.github.io/schemas/chapter.schema.json",
+  "title": "MakiNuki ChapterItem",
+  "description": "A single chapter entry inside MangaDetails.chapters.",
+  "type": "object",
+  "required": ["id", "number"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique chapter ID/slug"
+    },
+    "number": {
+      "type": ["number", "null"],
+      "description": "Float supporting decimals, e.g. 10.5; null for oneshots, extras, and unnumbered specials"
+    },
+    "title": {
+      "type": "string",
+      "description": "Optional chapter name, e.g. 'The Return'"
+    },
+    "uploadedAt": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Unix timestamp in milliseconds"
+    },
+    "scanlator": {
+      "type": "string",
+      "description": "e.g. 'Flame Comics'"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "additionalProperties": false
+}

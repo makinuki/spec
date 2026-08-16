@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://makinuki.github.io/schemas/index.schema.json",
+  "title": "MakiNuki Registry Index",
+  "description": "The public registry manifest at https://makinuki.github.io/index.json.",
+  "type": "object",
+  "required": ["version", "updatedAt", "sources"],
+  "properties": {
+    "version": {
+      "const": 1,
+      "description": "Registry manifest format version"
+    },
+    "updatedAt": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Unix timestamp in seconds"
+    },
+    "sources": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/SourceEntry" }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "SourceEntry": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "version",
+        "abiVersion",
+        "lang",
+        "baseUrl",
+        "iconUrl",
+        "nsfw",
+        "wasmUrl",
+        "sha256",
+        "minRuntimeVersion"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+        },
+        "name": { "type": "string" },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$"
+        },
+        "abiVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "ABI contract version"
+        },
+        "lang": {
+          "type": "string",
+          "pattern": "^(?:[a-z]{2}|multi)$"
+        },
+        "baseUrl": { "type": "string", "format": "uri" },
+        "iconUrl": { "type": "string", "format": "uri" },
+        "nsfw": { "type": "boolean" },
+        "wasmUrl": { "type": "string", "format": "uri" },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "SHA-256 hex digest of the .wasm binary"
+        },
+        "minRuntimeVersion": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Minimum runtime package semver (independent of abiVersion)"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://makinuki.github.io/schemas/filter.schema.json",
+  "title": "MakiNuki FilterSchema",
+  "description": "Array of FilterSchema objects returned by the get_filters() plugin export.",
+  "type": "array",
+  "items": {
+    "oneOf": [
+      { "$ref": "#/definitions/SelectFilter" },
+      { "$ref": "#/definitions/TriStateFilter" },
+      { "$ref": "#/definitions/CheckboxFilter" },
+      { "$ref": "#/definitions/TextFilter" }
+    ]
+  },
+  "definitions": {
+    "LabelValue": {
+      "type": "object",
+      "required": ["label", "value"],
+      "properties": {
+        "label": { "type": "string" },
+        "value": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "SelectFilter": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Key passed back in SearchQuery.filters" },
+        "title": { "type": "string", "description": "Display label in UI" },
+        "type": { "const": "select" },
+        "options": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/LabelValue" }
+        },
+        "default": { "type": "string" }
+      },
+      "required": ["id", "title", "type", "options", "default"],
+      "additionalProperties": false
+    },
+    "TriStateFilter": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "type": { "const": "tri_state" },
+        "options": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/LabelValue" }
+        },
+        "default": {
+          "type": "object",
+          "description": "Map of option value to Included (+) / Excluded (-); absent keys are Neutral",
+          "propertyNames": { "type": "string" },
+          "additionalProperties": { "enum": ["+", "-"] }
+        }
+      },
+      "required": ["id", "title", "type", "options"],
+      "additionalProperties": false
+    },
+    "CheckboxFilter": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "type": { "const": "checkbox" },
+        "default": { "type": "boolean" }
+      },
+      "required": ["id", "title", "type", "default"],
+      "additionalProperties": false
+    },
+    "TextFilter": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "type": { "const": "text" },
+        "placeholder": { "type": "string" },
+        "default": { "type": "string" }
+      },
+      "required": ["id", "title", "type"],
+      "additionalProperties": false
+    }
+  }
+}

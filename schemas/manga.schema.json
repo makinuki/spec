@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://makinuki.github.io/schemas/manga.schema.json",
+  "title": "MakiNuki MangaItem & PageResult",
+  "description": "search() output validates against PageResult, whose items are MangaItem.",
+  "$ref": "#/$defs/PageResult",
+  "$defs": {
+    "MangaItem": {
+      "type": "object",
+      "required": ["id", "title", "coverUrl"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique ID scoped to this source"
+        },
+        "title": { "type": "string" },
+        "coverUrl": { "type": "string", "format": "uri" },
+        "latestChapter": {
+          "type": "string",
+          "description": "e.g. 'Ch. 142'"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Web URL to the series"
+        }
+      },
+      "additionalProperties": false
+    },
+    "PageResult": {
+      "type": "object",
+      "required": ["page", "hasNextPage", "items"],
+      "properties": {
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "hasNextPage": {
+          "type": "boolean"
+        },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/MangaItem" }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

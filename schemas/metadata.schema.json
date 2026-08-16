@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://makinuki.github.io/schemas/metadata.schema.json",
+  "title": "MakiNuki SourceMetadata",
+  "description": "Static JSON payload returned by the get_metadata() plugin export. The registry index.json entry extends this with distribution fields (see index.schema.json).",
+  "type": "object",
+  "required": ["id", "name", "version", "abiVersion", "lang", "baseUrl", "iconUrl", "nsfw"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Unique slug, e.g. 'mangadex-en', 'asura-scans'"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name, e.g. 'Asura Scans'"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$",
+      "description": "SemVer string, e.g. '1.0.4'"
+    },
+    "abiVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "ABI contract version this plugin was built against; must equal the host ABI version at runtime"
+    },
+    "lang": {
+      "type": "string",
+      "pattern": "^(?:[a-z]{2}|multi)$",
+      "description": "ISO 639-1 language code, e.g. 'en', 'ja'; or 'multi' for multi-language sources"
+    },
+    "baseUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Canonical website URL"
+    },
+    "iconUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL or base64 data URI of the source icon"
+    },
+    "nsfw": {
+      "type": "boolean",
+      "description": "True if the source primarily hosts 18+ content"
+    }
+  },
+  "additionalProperties": false
+}

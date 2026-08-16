@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://makinuki.github.io/schemas/page.schema.json",
+  "title": "MakiNuki PageItem",
+  "description": "An ordered image page returned by get_pages().",
+  "type": "object",
+  "required": ["index", "url", "isScrambled"],
+  "properties": {
+    "index": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Remote image URL"
+    },
+    "headers": {
+      "type": "object",
+      "description": "Required headers, e.g. Referer",
+      "additionalProperties": { "type": "string" }
+    },
+    "isScrambled": {
+      "type": "boolean",
+      "description": "If true, host routes bytes through unscramble_image()"
+    },
+    "metadata": {
+      "description": "Required if isScrambled; tile map",
+      "$ref": "#/$defs/ScrambleInfo"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "ScrambleInfo": {
+      "type": "object",
+      "required": ["layout", "rows", "cols", "tileW", "tileH", "order"],
+      "properties": {
+        "layout": {
+          "type": "string",
+          "enum": ["slice", "shift", "custom"]
+        },
+        "rows": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Grid rows"
+        },
+        "cols": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Grid columns"
+        },
+        "tileW": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Tile width in px"
+        },
+        "tileH": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Tile height in px"
+        },
+        "order": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 },
+          "uniqueItems": true,
+          "description": "order[n] = original tile index currently at position n"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
