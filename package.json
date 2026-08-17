@@ -1,0 +1,13 @@
+{
+  "name": "@makinuki/spec",
+  "version": "0.1.0",
+  "description": "MakiNuki ABI specification and JSON Schemas",
+  "license": "UNLICENSED",
+  "files": [
+    "schemas"
+  ],
+  "exports": {
+    "./schemas/*": "./schemas/*",
+    "./package.json": "./package.json"
+  }
+}
