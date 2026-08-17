@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://makinuki.github.io/schemas/pages.schema.json",
+  "title": "MakiNuki PageItem[]",
+  "description": "get_pages() output: ordered array of PageItem (see page.schema.json).",
+  "type": "array",
+  "items": { "$ref": "page.schema.json" }
+}

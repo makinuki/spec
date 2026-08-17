@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://makinuki.github.io/schemas/details.schema.json",
+  "title": "MakiNuki MangaDetails",
+  "description": "get_details() output validates against this schema; chapters items are ChapterItem (see chapter.schema.json).",
+  "type": "object",
+  "required": ["id", "title", "status", "coverUrl", "chapters"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Must equal the manga id passed to get_details()"
+    },
+    "title": {
+      "type": "string"
+    },
+    "altTitles": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "description": {
+      "type": "string"
+    },
+    "authors": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "artists": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "genres": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["Ongoing", "Completed", "Hiatus", "Cancelled", "Unknown"]
+    },
+    "coverUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "chapters": {
+      "type": "array",
+      "items": { "$ref": "chapter.schema.json" }
+    }
+  },
+  "additionalProperties": false
+}

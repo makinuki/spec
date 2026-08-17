@@ -14,6 +14,10 @@
       "type": ["number", "null"],
       "description": "Float supporting decimals, e.g. 10.5; null for oneshots, extras, and unnumbered specials"
     },
+    "language": {
+      "type": "string",
+      "description": "ISO 639-1 with optional region, e.g. 'pt-br'; multi-language sources populate it"
+    },
     "title": {
       "type": "string",
       "description": "Optional chapter name, e.g. 'The Return'"
