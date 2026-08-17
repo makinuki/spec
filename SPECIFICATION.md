@@ -207,6 +207,8 @@ interface TextFilter extends BaseFilter {
 }
 ```
 
+**Filter defaults contract:** The defaults emitted by `get_filters()` must describe the unfiltered result set. A host or client applying exactly the defaults must receive everything the source can find. A checkbox defaulting to checked means inclusive (checked = include in the query); a filter must never silently hardcode an unrelated query dimension (for example a language restriction inside a chapter-count checkbox).
+
 ---
 
 ### 3.3 `MangaItem` & `PageResult<T>`
@@ -225,6 +227,8 @@ interface MangaItem {
   url?: string;            // Web URL to the series
 }
 ```
+
+**Complete results contract:** Dynamic exports (`search`, `get_details`) return everything the source can find (all languages, groups, and content ratings) unless the caller's `filters` narrow the result. In ABI 1, `get_details` takes no filter input and must not apply language, rating, or content restrictions internally. Empty results are successful results: `search` may return zero items and `get_details` may return an empty `chapters` array inside `ok: true`; hosts must not treat them as errors.
 
 ---
 
@@ -246,6 +250,7 @@ interface MangaDetails {
 interface ChapterItem {
   id: string;              // Unique chapter ID/slug
   number: number | null;   // Float supporting decimals, e.g. 10.5; null for oneshots, extras, and unnumbered specials
+  language?: string;       // ISO 639-1 with optional region, e.g. "en", "pt-br"; multi-language sources must populate it
   title?: string;          // Optional chapter name, e.g. "The Return"
   uploadedAt?: number;     // Unix timestamp in milliseconds
   scanlator?: string;      // e.g. "Flame Comics"
