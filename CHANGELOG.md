@@ -2,6 +2,10 @@
 
 All notable changes to the MakiNuki ABI specification are recorded here. This document follows the ABI versioning policy (Section 7 of SPECIFICATION.md).
 
+## [1.1.0] - 2026-08-19
+
+- Added optional `allowedHosts: string[]` to `SourceMetadata` (Section 3.1) and to registry entries in `index.json` (Section 5.1), with matching additions to `metadata.schema.json` and `index.schema.json`.
+
 ## [1.0.0] - 2026-08-17
 
 ABI 1 is declared frozen. The contract defined in this release is the baseline for all plugin and host implementations; breaking changes now require incrementing `abiVersion` (Section 7).

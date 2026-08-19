@@ -43,6 +43,14 @@
     "nsfw": {
       "type": "boolean",
       "description": "True if the source primarily hosts 18+ content"
+    },
+    "allowedHosts": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$"
+      },
+      "description": "Image/CDN hostnames the source uses beyond baseUrl; transport proxies may proxy these for the source"
     }
   },
   "additionalProperties": false

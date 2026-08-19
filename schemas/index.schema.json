@@ -69,6 +69,14 @@
           "type": "string",
           "pattern": "^\\d+\\.\\d+\\.\\d+$",
           "description": "Minimum runtime package semver (independent of abiVersion)"
+        },
+        "allowedHosts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$"
+          },
+          "description": "Additional image/CDN hostnames this source uses, beyond baseUrl; transport proxies may proxy these for the source"
         }
       },
       "additionalProperties": false

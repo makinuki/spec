@@ -1,6 +1,6 @@
 # Project MakiNuki (巻抜き)
 ## Core Technical Specification
-**Version:** `1.0.0`  
+**Version:** `1.1.0`  
 **Status:** `Approved / Frozen (ABI 1)`  
 **Namespace:** `makinuki`  
 **Target Runtimes:** Web (Browser), Android, Desktop, Headless CLI  
@@ -162,6 +162,7 @@ interface SourceMetadata {
   baseUrl: string;         // Canonical website URL
   iconUrl: string;         // URL or base64 data URI of the source icon
   nsfw: boolean;           // True if the source primarily hosts 18+ content
+  allowedHosts?: string[]; // Image/CDN hostnames beyond baseUrl (e.g. "mangadex.network"); used by transport proxies
 }
 ```
 
@@ -394,6 +395,8 @@ The registry is hosted on GitHub Pages (`https://makinuki.github.io/index.json`)
   ]
 }
 ```
+
+Entries may additionally list `allowedHosts: string[]` — image/CDN hostnames the source uses beyond `baseUrl`. Transport proxies (worker relays, extension bridges) use `baseUrl` plus `allowedHosts` as their host allowlist for the source; the field is optional and servers without it are restricted to the `baseUrl` host.
 
 ### 5.2 Source Validation & Security Rules
 * **SHA-256 Verification:** Host runtimes must compute the SHA-256 hash of any downloaded `.wasm` file and verify it against `index.json` prior to execution.
