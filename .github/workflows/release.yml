@@ -1,0 +1,39 @@
+# Publishes @makinuki/spec to npm when a vX.Y.Z tag lands on master.
+# Authentication uses npm Trusted Publishing (OIDC); the package must
+# list this repository and workflow filename in its Trusted Publisher
+# settings on npmjs.com.
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
+
+      - name: Verify SPECIFICATION.md header matches package.json
+        run: |
+          pkg=$(node -p "require('./package.json').version")
+          doc=$(sed -n 's/^\*\*Version:\*\*[ `]*\([0-9][0-9.]*\).*/\1/p' SPECIFICATION.md | head -n 1)
+          if [ "$pkg" != "$doc" ]; then
+            echo "version drift: package.json=$pkg SPECIFICATION.md=$doc" >&2
+            exit 1
+          fi
+
+      - name: Publish
+        run: npm publish --access public

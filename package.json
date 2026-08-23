@@ -4,6 +4,14 @@
   "description": "MakiNuki ABI specification and JSON Schemas",
   "license": "MIT",
   "author": { "name": "Byururu-sama", "url": "https://github.com/Byururu-sama" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/makinuki/spec.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "files": [
     "schemas"
   ],
