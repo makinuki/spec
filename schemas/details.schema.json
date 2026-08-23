@@ -43,6 +43,11 @@
     "chapters": {
       "type": "array",
       "items": { "$ref": "chapter.schema.json" }
+    },
+    "covers": {
+      "type": "array",
+      "description": "Additional renditions of the cover artwork; entries are distinct URLs and never duplicate coverUrl. Selection rules per SPEC Section 3.3.",
+      "items": { "$ref": "manga.schema.json#/$defs/CoverVariant" }
     }
   },
   "additionalProperties": false

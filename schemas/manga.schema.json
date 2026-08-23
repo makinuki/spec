@@ -23,6 +23,32 @@
           "type": "string",
           "format": "uri",
           "description": "Web URL to the series"
+        },
+        "covers": {
+          "type": "array",
+          "description": "Additional renditions of the cover artwork; entries are distinct URLs and never duplicate coverUrl.",
+          "items": { "$ref": "#/$defs/CoverVariant" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "CoverVariant": {
+      "type": "object",
+      "required": ["url"],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Served pixel width, when the source declares it"
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Served pixel height, when the source declares it"
         }
       },
       "additionalProperties": false

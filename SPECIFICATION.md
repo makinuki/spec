@@ -226,8 +226,17 @@ interface MangaItem {
   coverUrl: string;
   latestChapter?: string;  // e.g. "Ch. 142"
   url?: string;            // Web URL to the series
+  covers?: CoverVariant[];
+}
+
+interface CoverVariant {
+  url: string;             // Absolute URL of this rendition
+  width?: number;          // Served pixel width, when declared
+  height?: number;         // Served pixel height, when declared
 }
 ```
+
+**Cover variants:** `coverUrl` stays the canonical locator. The optional `covers` array lists additional renditions of the same artwork as distinct absolute URLs and never duplicates `coverUrl`. `width` and `height` describe the served image when the source declares them. A consumer choosing an image for a target width prefers the largest declared width not exceeding it, then the smallest available variant, then `coverUrl`. Plugins may omit `covers`; hosts may ignore it.
 
 **Complete results contract:** Dynamic exports (`search`, `get_details`) return everything the source can find (all languages, groups, and content ratings) unless the caller's `filters` narrow the result. In ABI 1, `get_details` takes no filter input and must not apply language, rating, or content restrictions internally. Empty results are successful results: `search` may return zero items and `get_details` may return an empty `chapters` array inside `ok: true`; hosts must not treat them as errors.
 
@@ -246,6 +255,7 @@ interface MangaDetails {
   status: "Ongoing" | "Completed" | "Hiatus" | "Cancelled" | "Unknown";
   coverUrl: string;
   chapters: ChapterItem[];
+  covers?: CoverVariant[];
 }
 
 interface ChapterItem {
@@ -258,6 +268,8 @@ interface ChapterItem {
   url?: string;
 }
 ```
+
+`covers` on `MangaDetails` follows the variant rules of Section 3.3.
 
 ---
 
