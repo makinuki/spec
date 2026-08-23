@@ -1,6 +1,6 @@
 {
   "name": "@makinuki/spec",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "MakiNuki ABI specification and JSON Schemas",
   "license": "MIT",
   "author": { "name": "Byururu-sama", "url": "https://github.com/Byururu-sama" },

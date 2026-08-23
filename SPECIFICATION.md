@@ -1,6 +1,6 @@
 # Project MakiNuki (巻抜き)
 ## Core Technical Specification
-**Version:** `1.1.0`  
+**Version:** `1.1.2`  
 **Status:** `Approved / Frozen (ABI 1)`  
 **Namespace:** `makinuki`  
 **Target Runtimes:** Web (Browser), Android, Desktop, Headless CLI  
