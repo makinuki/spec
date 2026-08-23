@@ -52,25 +52,25 @@ jobs:
             git push origin main
           fi
 
-      # The pages deployment can lag the push briefly; poll before
-      # declaring success and fail the run on any mismatch.
+      # The pages deployment can lag the push by minutes on a cold
+      # build; re-check every schema each round against a global
+      # deadline and fail the run on timeout or content drift.
       - name: Verify live schemas
         run: |
-          ok=1
-          for f in schemas/*.schema.json; do
-            name=$(basename "$f")
-            url="https://makinuki.github.io/schemas/$name"
-            for attempt in 1 2 3 4 5 6; do
+          deadline=$((SECONDS + 300))
+          while [ $SECONDS -lt $deadline ]; do
+            pending=0
+            for f in schemas/*.schema.json; do
+              name=$(basename "$f")
+              url="https://makinuki.github.io/schemas/$name"
               if curl -fsSL "$url" -o live.json && diff -q "$f" live.json > /dev/null; then
                 echo "live ok: $url"
-                break
-              fi
-              if [ "$attempt" = 6 ]; then
-                echo "live check failed: $url" >&2
-                ok=0
               else
-                sleep 10
+                pending=1
               fi
             done
+            [ $pending -eq 0 ] && exit 0
+            sleep 15
           done
-          exit $ok
+          echo "live verification timed out" >&2
+          exit 1
