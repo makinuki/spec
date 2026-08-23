@@ -2,6 +2,11 @@
 
 All notable changes to the MakiNuki ABI specification are recorded here. This document follows the ABI versioning policy (Section 7 of SPECIFICATION.md).
 
+## [Unreleased]
+
+- Made `coverUrl` optional on `MangaItem` and `MangaDetails` (Section 3.3, Section 3.4): plugins omit it when a title has no usable artwork instead of fabricating placeholder URLs; hosts treat absence as no cover available. Payload schemas drop `coverUrl` from their required lists and now enforce that `covers` may appear only alongside `coverUrl`.
+- Added optional `volume: number` to `ChapterItem` (Section 3.4) with a matching `chapter.schema.json` addition, letting clients group chapters by volume without title heuristics.
+
 ## [1.1.2] - 2026-08-23
 
 - Added optional `covers: CoverVariant[]` to `MangaItem` and `MangaDetails` (Section 3.3, Section 3.4) with matching schema additions, enabling sources to expose additional cover renditions.

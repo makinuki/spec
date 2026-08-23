@@ -4,7 +4,9 @@
   "title": "MakiNuki MangaDetails",
   "description": "get_details() output validates against this schema; chapters items are ChapterItem (see chapter.schema.json).",
   "type": "object",
-  "required": ["id", "title", "status", "coverUrl", "chapters"],
+  "required": ["id", "title", "status", "chapters"],
+  "if": { "required": ["covers"] },
+  "then": { "required": ["coverUrl"] },
   "properties": {
     "id": {
       "type": "string",
@@ -38,7 +40,8 @@
     },
     "coverUrl": {
       "type": "string",
-      "format": "uri"
+      "format": "uri",
+      "description": "Absent when the title has no usable artwork; hosts treat absence as no cover available"
     },
     "chapters": {
       "type": "array",

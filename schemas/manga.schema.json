@@ -7,14 +7,20 @@
   "$defs": {
     "MangaItem": {
       "type": "object",
-      "required": ["id", "title", "coverUrl"],
+      "required": ["id", "title"],
+      "if": { "required": ["covers"] },
+      "then": { "required": ["coverUrl"] },
       "properties": {
         "id": {
           "type": "string",
           "description": "Unique ID scoped to this source"
         },
         "title": { "type": "string" },
-        "coverUrl": { "type": "string", "format": "uri" },
+        "coverUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Absent when the title has no usable artwork; hosts treat absence as no cover available"
+        },
         "latestChapter": {
           "type": "string",
           "description": "e.g. 'Ch. 142'"
@@ -26,7 +32,7 @@
         },
         "covers": {
           "type": "array",
-          "description": "Additional renditions of the cover artwork; entries are distinct URLs and never duplicate coverUrl.",
+          "description": "Additional renditions of the cover artwork; entries are distinct URLs and never duplicate coverUrl. Presupposes a canonical locator: omitted when coverUrl is absent.",
           "items": { "$ref": "#/$defs/CoverVariant" }
         }
       },

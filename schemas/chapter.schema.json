@@ -14,6 +14,10 @@
       "type": ["number", "null"],
       "description": "Float supporting decimals, e.g. 10.5; null for oneshots, extras, and unnumbered specials"
     },
+    "volume": {
+      "type": "integer",
+      "description": "Volume grouping when the source declares one"
+    },
     "language": {
       "type": "string",
       "description": "ISO 639-1 with optional region, e.g. 'pt-br'; multi-language sources populate it"
