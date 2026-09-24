@@ -2,7 +2,7 @@
 
 All notable changes to the MakiNuki ABI specification are recorded here. This document follows the ABI versioning policy (Section 7 of SPECIFICATION.md).
 
-## [Unreleased]
+## [1.3.0] - 2026-09-24
 
 - Added optional static export `get_settings()` (Section 2.2) and the `SettingSchema` contract (Section 3.7, `settings.schema.json`): sources declare user-configurable options (`checkbox`, `select`, `text` with optional `sensitive`); hosts persist values under the setting id in the plugin storage namespace; plugins read them at call time with `makinuki_storage_get`. A `text` setting with id `base_url` is the well-known domain-override convention.
 - Added optional `tags: string[]` to `MangaDetails` (Section 3.4) for sources that distinguish secondary descriptors from their primary `genres` classification.
