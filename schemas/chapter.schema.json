@@ -35,9 +35,14 @@
       "type": "string",
       "description": "e.g. 'Flame Comics'"
     },
+    "locked": {
+      "type": "boolean",
+      "description": "True when reading requires payment or account entitlement at the source site; hosts badge and may skip get_pages"
+    },
     "url": {
       "type": "string",
-      "format": "uri"
+      "format": "uri",
+      "description": "Web URL of the chapter; on locked chapters may point at an external official portal"
     }
   },
   "additionalProperties": false

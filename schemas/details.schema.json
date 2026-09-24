@@ -34,6 +34,11 @@
       "type": "array",
       "items": { "type": "string" }
     },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Secondary descriptors (themes, formats, demographics) when the source distinguishes them from genres"
+    },
     "status": {
       "type": "string",
       "enum": ["Ongoing", "Completed", "Hiatus", "Cancelled", "Unknown"]

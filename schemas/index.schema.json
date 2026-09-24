@@ -77,6 +77,40 @@
             "pattern": "^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$"
           },
           "description": "Additional image/CDN hostnames this source uses, beyond baseUrl; transport proxies may proxy these for the source"
+        },
+        "rateLimit": {
+          "type": "object",
+          "description": "Politeness policy the source asks hosts to keep; copied unchanged from get_metadata output",
+          "properties": {
+            "intervalMs": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Minimum delay between requests to the source"
+            },
+            "burst": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Concurrent requests the source tolerates"
+            }
+          },
+          "additionalProperties": false
+        },
+        "retry": {
+          "type": "object",
+          "description": "Retry policy the source suggests for failed requests; copied unchanged from get_metadata output",
+          "properties": {
+            "maxAttempts": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Attempts for a failed request before giving up"
+            },
+            "backoffMs": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Base delay between retries"
+            }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false

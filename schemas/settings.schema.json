@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://makinuki.github.io/schemas/settings.schema.json",
+  "title": "MakiNuki SettingSchema",
+  "description": "Array of SettingSchema objects returned by the optional get_settings() plugin export.",
+  "type": "array",
+  "items": {
+    "oneOf": [
+      { "$ref": "#/definitions/CheckboxSetting" },
+      { "$ref": "#/definitions/SelectSetting" },
+      { "$ref": "#/definitions/TextSetting" }
+    ]
+  },
+  "definitions": {
+    "LabelValue": {
+      "type": "object",
+      "required": ["label", "value"],
+      "properties": {
+        "label": { "type": "string" },
+        "value": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "CheckboxSetting": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Storage key in the plugin storage namespace" },
+        "title": { "type": "string", "description": "Display label in UI" },
+        "description": { "type": "string", "description": "Optional helper text" },
+        "type": { "const": "checkbox" },
+        "default": { "type": "boolean" }
+      },
+      "required": ["id", "title", "type", "default"],
+      "additionalProperties": false
+    },
+    "SelectSetting": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Storage key in the plugin storage namespace" },
+        "title": { "type": "string", "description": "Display label in UI" },
+        "description": { "type": "string", "description": "Optional helper text" },
+        "type": { "const": "select" },
+        "options": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/LabelValue" }
+        },
+        "default": { "type": "string", "description": "Must equal one option's value" }
+      },
+      "required": ["id", "title", "type", "options", "default"],
+      "additionalProperties": false
+    },
+    "TextSetting": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Storage key in the plugin storage namespace" },
+        "title": { "type": "string", "description": "Display label in UI" },
+        "description": { "type": "string", "description": "Optional helper text" },
+        "type": { "const": "text" },
+        "placeholder": { "type": "string" },
+        "default": { "type": "string" },
+        "sensitive": {
+          "type": "boolean",
+          "description": "Tokens, cookies; hosts mask input and never echo the value back"
+        }
+      },
+      "required": ["id", "title", "type"],
+      "additionalProperties": false
+    }
+  }
+}

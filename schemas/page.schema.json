@@ -5,6 +5,8 @@
   "description": "An ordered image page returned by get_pages().",
   "type": "object",
   "required": ["index", "url", "isScrambled"],
+  "if": { "properties": { "isScrambled": { "const": true } } },
+  "then": { "required": ["metadata"] },
   "properties": {
     "index": {
       "type": "integer",
