@@ -38,6 +38,7 @@ Every MakiNuki source must compile to a single `.wasm` binary that interfaces wi
 │  Plugin Exports:                                       │
 │    • get_metadata() -> SourceMetadata                  │
 │    • get_filters() -> FilterSchema[]                   │
+│    • [Optional] get_settings() -> SettingSchema[]      │
 │    • search(query_json) -> PageResult<MangaItem>       │
 │    • get_details(manga_id_string) -> MangaDetails      │
 │    • get_pages(chapter_id_string) -> PageItem[]        │
@@ -106,7 +107,7 @@ Emits a log entry to the host debugger/console.
 
 ### 2.2 Plugin Exports (Implemented by Scrapers)
 
-All exported functions accept and return string pointers containing serialized JSON, except for `unscramble_image` which accepts and returns raw byte buffers. Static exports (`get_metadata`, `get_filters`) return raw payloads; dynamic exports (`search`, `get_details`, `get_pages`) wrap their payloads in the `PluginResult<T>` envelope defined in Section 3.6.
+All exported functions accept and return string pointers containing serialized JSON, except for `unscramble_image` which accepts and returns raw byte buffers. Static exports (`get_metadata`, `get_filters`, and the optional `get_settings`) return raw payloads; dynamic exports (`search`, `get_details`, `get_pages`) wrap their payloads in the `PluginResult<T>` envelope defined in Section 3.6.
 
 #### 1. `get_metadata() -> string`
 Returns static information identifying the source.
@@ -147,6 +148,11 @@ Takes raw image bytes of a scrambled puzzle tile, reconstructs the original layo
 * **Failure convention:** If the input cannot be reconstructed, the plugin returns a **zero-length byte buffer**; the host reports `UNSCRAMBLE_FAILED` (Section 6) to the delivery pipeline and skips rendering the tile.
 * **Memory constraints:** Each plugin instance is granted a **64 MB** Extism memory budget. Input buffers to `unscramble_image` are capped at **16 MB raw bytes / 8192×8192 px**; if an image exceeds these limits, the host rejects the call with `MEMORY_LIMIT_EXCEEDED` (Section 6).
 
+#### 7. *(Optional)* `get_settings() -> string`
+Returns an array of `SettingSchema` objects (Section 3.7) describing the user-configurable options the source declares, or is absent entirely when the source has no settings. This is a static export: it returns raw JSON like `get_metadata`/`get_filters` and never the `PluginResult<T>` envelope, and plugins should answer from constants without performing network requests.
+
+* **Persistence:** the host persists each value under the setting `id` in the plugin's own storage namespace, the same namespace `makinuki_storage_get`/`makinuki_storage_set` operate on, so plugins read current values at call time with `makinuki_storage_get`. Section 3.7 defines serialization, validation, and reset semantics.
+
 ---
 
 ## 3. Data Schemas (JSON Specification)
@@ -163,8 +169,22 @@ interface SourceMetadata {
   iconUrl: string;         // URL or base64 data URI of the source icon
   nsfw: boolean;           // True if the source primarily hosts 18+ content
   allowedHosts?: string[]; // Image/CDN hostnames beyond baseUrl (e.g. "mangadex.network"); used by transport proxies
+  rateLimit?: RateLimitHint; // Politeness policy the source asks hosts to keep
+  retry?: RetryHint;         // Retry policy the source suggests for failed requests
+}
+
+interface RateLimitHint {
+  intervalMs?: number;   // Minimum delay between requests to the source
+  burst?: number;        // Concurrent requests the source tolerates
+}
+
+interface RetryHint {
+  maxAttempts?: number;  // Attempts for a failed request before giving up
+  backoffMs?: number;    // Base delay between retries
 }
 ```
+
+**Transfer hints:** `rateLimit` and `retry` are source-suggested hints about the host's own request pipeline, not user-facing settings (Section 3.7 covers those). Hosts MAY honor them, MAY cap them to their own floors and ceilings, and MAY let users override them per source. Absent fields mean the host default policy applies. Registry entries carry both fields unchanged (Section 5.1), so hosts can read a source's suggested policy before installing it.
 
 ---
 
@@ -240,6 +260,8 @@ interface CoverVariant {
 
 **Complete results contract:** Dynamic exports (`search`, `get_details`) return everything the source can find (all languages, groups, and content ratings) unless the caller's `filters` narrow the result. In ABI 1, `get_details` takes no filter input and must not apply language, rating, or content restrictions internally. Empty results are successful results: `search` may return zero items and `get_details` may return an empty `chapters` array inside `ok: true`; hosts must not treat them as errors.
 
+**URL absoluteness:** Every URL field in dynamic-export payloads (`coverUrl`, `covers` entries, `url` on `MangaItem` and `ChapterItem`, and `url` on `PageItem`, Sections 3.3-3.5) MUST be an absolute `http` or `https` URI. Plugins resolve relative references against the source origin before returning them; hosts may treat a relative value as a contract violation and drop the field.
+
 ---
 
 ### 3.4 `MangaDetails` & `ChapterItem`
@@ -252,6 +274,7 @@ interface MangaDetails {
   authors?: string[];
   artists?: string[];
   genres?: string[];
+  tags?: string[];         // Secondary descriptors (themes, formats, demographics) when the source distinguishes them from genres
   status: "Ongoing" | "Completed" | "Hiatus" | "Cancelled" | "Unknown";
   coverUrl?: string;       // Absent when the title has no usable artwork
   chapters: ChapterItem[];
@@ -266,9 +289,14 @@ interface ChapterItem {
   title?: string;          // Optional chapter name, e.g. "The Return"
   uploadedAt?: number;     // Unix timestamp in milliseconds
   scanlator?: string;      // e.g. "Flame Comics"
-  url?: string;
+  locked?: boolean;        // True when reading requires payment or account entitlement at the source site
+  url?: string;            // Web URL of the chapter; on locked chapters may point at an external official portal
 }
 ```
+
+**Tags versus genres:** `genres` carries the source's primary genre classification; `tags` carries secondary descriptors (themes, formats, demographics). Sources that serve one flat list populate `genres` only; sources with a native split populate both. Both fields are optional and hosts must handle either subset.
+
+**Locked chapters:** `locked: true` marks a chapter whose reading requires payment or account entitlement at the source site. Hosts should badge locked chapters and may skip calling `get_pages` for them; `url` on a locked chapter may point at the source web page, including an external official portal, and hosts MAY open it in the user's browser instead.
 
 `covers` on `MangaDetails` follows the variant rules of Section 3.3.
 
@@ -322,6 +350,52 @@ type PluginResult<T> =
 
 * **On success:** `{"ok": true, "data": { ... }}` where `data` holds the `PageResult<MangaItem>`, `MangaDetails`, or `PageItem[]` payload described in Sections 3.3-3.5.
 * **On failure:** `{"ok": false, "error": {"code": "PARSING_ERROR", "message": "Failed to find #chapter-list"}}` where `code` must be one of the standardized codes in Section 6; `message` is a human-readable hint for the host debugger.
+
+---
+
+### 3.7 `SettingSchema` (Per-Source Settings)
+
+Plugins that support user configuration declare it through the optional static export `get_settings()` (Section 2.2), which returns an array of `SettingSchema` objects as raw JSON. Host applications iterate the array to build a native settings UI per installed source, mirroring how `FilterSchema` drives search filter menus (Section 3.2). Payloads validate against `settings.schema.json`.
+
+```typescript
+type SettingSchema =
+  | CheckboxSetting
+  | SelectSetting
+  | TextSetting;
+
+interface BaseSetting {
+  id: string;              // Storage key in the plugin's storage namespace
+  title: string;           // Display label in UI
+  description?: string;    // Optional helper text
+}
+
+interface CheckboxSetting extends BaseSetting {
+  type: "checkbox";
+  default: boolean;
+}
+
+interface SelectSetting extends BaseSetting {
+  type: "select";
+  options: Array<{ label: string; value: string }>;
+  default: string;         // Must equal one option's value
+}
+
+interface TextSetting extends BaseSetting {
+  type: "text";
+  placeholder?: string;
+  default?: string;
+  sensitive?: boolean;     // Tokens, cookies; hosts mask input and never echo the value back
+}
+```
+
+**Persistence and value semantics:**
+
+* The setting `id` is a key in the plugin's per-source storage namespace (Section 2.1). Hosts persist values through the same storage layer that backs `makinuki_storage_set`; plugins read them at call time with `makinuki_storage_get`. Setting ids share the namespace with plugin-internal keys and reserved host keys (`makinuki.*`); a plugin must not reuse a declared setting id for internal state.
+* Serialization: `checkbox` values are stored as `"true"` or `"false"`, `select` values as the chosen option's `value`, `text` values as the raw string.
+* A missing key means the schema `default` applies. Resetting a setting to default means deleting the key; an empty string remains a valid `text` value distinct from absent (Section 2.1).
+* Hosts validate values against the declared schema before writing: known `id`, value kind matching `type`, `select` values restricted to declared options, and the 64 KB per-value storage cap.
+* `sensitive: true` is host UX policy: mask the input, and host APIs must not return the stored value to clients, only that a value is set.
+* A source that supports overriding its built-in domain (domain hopping) declares a `text` setting with the well-known id `base_url` and checks it via `makinuki_storage_get("base_url")` when building requests.
 
 ---
 
@@ -449,3 +523,4 @@ The `abiVersion` integer is the single source of truth for contract compatibilit
 * **Freeze & Changelog:** This document's `1.0.0` release declares **ABI 1 frozen**. Every repository shipping ABI artifacts (`spec`, `pdk-ts`, `sources`) must document contract changes under a `CHANGELOG` heading per release.
 * **Explicitly out of ABI 1:** A host-side HTML parsing import (`makinuki_parse_html`) is deferred; if ever introduced, it ships as ABI 2.
 * **Decision Log (1.0.0 ratification):** The following decisions are recorded as ratified for ABI 1: plugin error envelope scope (Section 3.6); GET/HEAD-only transparent retry (Section 4.2); 64 MB instance / 16 MB input memory budgets (Section 2.2); zero-length buffer + `UNSCRAMBLE_FAILED` unscramble failure convention (Section 3.5); `abiVersion` / `minRuntimeVersion` as two independent axes; `makinuki_parse_html` excluded from ABI 1.
+* **Decision Log (1.3.0 additions):** Optional, non-breaking additions ratified under the Non-Breaking Additions rule, no `abiVersion` bump: `get_settings` static export and `SettingSchema` (Sections 2.2, 3.7); `tags` on `MangaDetails` and `locked` on `ChapterItem` (Section 3.4); `rateLimit`/`retry` transfer hints on `SourceMetadata` (Section 3.1); absolute-URI requirement for dynamic-export URL fields (Sections 3.3-3.5); `page.schema.json` requires `metadata` whenever `isScrambled` is true, matching the Section 3.5 text.

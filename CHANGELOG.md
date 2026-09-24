@@ -2,6 +2,15 @@
 
 All notable changes to the MakiNuki ABI specification are recorded here. This document follows the ABI versioning policy (Section 7 of SPECIFICATION.md).
 
+## [Unreleased]
+
+- Added optional static export `get_settings()` (Section 2.2) and the `SettingSchema` contract (Section 3.7, `settings.schema.json`): sources declare user-configurable options (`checkbox`, `select`, `text` with optional `sensitive`); hosts persist values under the setting id in the plugin storage namespace; plugins read them at call time with `makinuki_storage_get`. A `text` setting with id `base_url` is the well-known domain-override convention.
+- Added optional `tags: string[]` to `MangaDetails` (Section 3.4) for sources that distinguish secondary descriptors from their primary `genres` classification.
+- Added optional `locked: boolean` to `ChapterItem` (Section 3.4) marking chapters that require payment or entitlement at the source site; `url` on such chapters may point at an external official portal that hosts may open in a browser.
+- Added optional `rateLimit` and `retry` hint objects to `SourceMetadata` (Section 3.1) and registry entries (Section 5.1), letting sources suggest politeness and retry policies to hosts.
+- Required absolute http(s) URIs for every URL field in dynamic-export payloads (Sections 3.3-3.5).
+- `page.schema.json` now requires `metadata` whenever `isScrambled` is true, matching the Section 3.5 text.
+
 ## [1.2.0] - 2026-08-23
 
 - Made `coverUrl` optional on `MangaItem` and `MangaDetails` (Section 3.3, Section 3.4): plugins omit it when a title has no usable artwork instead of fabricating placeholder URLs; hosts treat absence as no cover available. Payload schemas drop `coverUrl` from their required lists and now enforce that `covers` may appear only alongside `coverUrl`.
